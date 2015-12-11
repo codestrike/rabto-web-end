@@ -1,0 +1,23 @@
+{
+  "name": "web-end",
+  "version": "1.0.0",
+  "description": "Rabta web end with NodeJS and browser's stuff",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.com:rabta/web-end.git"
+  },
+  "keywords": [
+    "NodeJS",
+    "ExpressJS",
+    "Tourism",
+    "Travel",
+    "Web",
+    "App"
+  ],
+  "author": "Ashish Gaikwad <ash.gkwd@gmail.com>",
+  "license": "Proprietary License"
+}
