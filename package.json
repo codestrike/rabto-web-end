@@ -19,5 +19,9 @@
     "App"
   ],
   "author": "Ashish Gaikwad <ash.gkwd@gmail.com>",
-  "license": "Proprietary License"
+  "license": "Proprietary License",
+  "dependencies": {
+    "express": "^4.13.3",
+    "socket.io": "^1.3.7"
+  }
 }
