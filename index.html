@@ -9,6 +9,9 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
 	var socket = io();
+	socket.on('some event', function(d) {
+		console.log(d);
+	});
 </script>
 </body>
 </html>
