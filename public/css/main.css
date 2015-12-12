@@ -5,7 +5,6 @@ body {
 }
 
 .card {
-	margin: 8px;
 	width: 300px;
 	min-height: 100px;
 	box-shadow: 1px 1px 0.7em #212121;
@@ -43,4 +42,19 @@ body {
 
 .card .btn:hover {
 	color: #616161;
+}
+
+/*Override Leaflet*/
+.leaflet-popup-content {
+	margin-bottom: 0;
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+	box-shadow: 0 0 0 transparent;
+}
+
+.leaflet-popup-content-wrapper {
+	padding: 0;
+	border-radius: 0;
+	background-color: transparent;
 }
