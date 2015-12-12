@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Rabta</title>
+	<meta content="utf8">
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+	<style type="text/css">
+	body, div {
+		padding: 0;
+		margin: 0;
+	}
+	#map {
+		position: absolute;
+		height: 100%;
+		width: 100%;
+	}
+	</style>
+</head>
+<body>
+	<div id="map"></div>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+	<script src="/js/main.js"></script>
+	<script>
+		var socket = io();
+		socket.on('some event', function(d) {
+			console.log(d);
+		});
+	</script>
+</body>
+</html>
