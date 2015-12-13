@@ -52,7 +52,7 @@ Rabta.test = function() {
 		// Check getUniqueID is returning a string 
 		if(Rabta.getUniqueID().length != 36) console.error('[Rabta.getUniqueID()]')
 	} catch (e) {
-		console.error('[Some tests failed to execte]', e);
+		console.error('[Some tests failed to execute]', e);
 	}
 };
 
