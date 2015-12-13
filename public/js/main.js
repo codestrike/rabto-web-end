@@ -14,7 +14,21 @@ var Rabta = {
 		var m = L.marker([lat, lng]);
 		m._id = Rabta.getUniqueID();
 		Rabta.things[m._id] = m;
+		m.bindPopup(Rabta.getPopupFor(m._id))
 		m.addTo(Rabta.map);
+	},
+
+	getPopupFor: function(id) {
+		return `<div class="card">
+					<section class="head">
+						<strong class="author">${id}</strong>
+					</section>
+					<div style="background-image:url('/img/b.jpg')" class="hero"></div>
+					<div class="foot">
+						<button class="btn">OK</button>
+						<button class="btn">CANCEL</button>
+					</div>
+				</div>`
 	},
 	
 	// Map
@@ -38,7 +52,7 @@ Rabta.test = function() {
 		// Check getUniqueID is returning a string 
 		if(Rabta.getUniqueID().length != 36) console.error('[Rabta.getUniqueID()]')
 	} catch (e) {
-		console.error('[Some tests failed to execte]', e);
+		console.error('[Some tests failed to execute]', e);
 	}
 };
 
