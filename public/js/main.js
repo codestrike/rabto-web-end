@@ -22,9 +22,10 @@ var Rabta = {
 	// Popup
 	getPopupFor: function(id) {
 		return (new DOMParser)
-			.parseFromString(`<div class="card">
+			.parseFromString(`<div class="card popup-card">
 					<section class="head">
 						<strong class="author">${id}</strong>
+						<p class="text">lorem impsum beat bee do</p>
 					</section>
 					<div style="background-image:url('/img/b.jpg')" class="hero"></div>
 					<div class="foot">
@@ -35,14 +36,16 @@ var Rabta = {
 	},
 
 	// Edit Box
-	showEditBox: function(popup, event) {
+	showEditBox: function() {
+		var popup = document.getElementsByClassName('popup-card')[0];
 		console.log('Yay! p', popup);
+		Rabta.editBox.getElementsByClassName('edit-box-text')[0].value = popup.getElementsByClassName('text')[0].innerHTML;
 		Rabta.editBox.classList.add('overlay');
 	},
 	
 	// Map
 	makeMap: function() {
-		L.tileLayer('http://{s}.jtile.osm.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(this.map);
+		L.tileLayer('http://{s}.jtile.osm.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(Rabta.map);
 		Rabta.map
 		.on('contextmenu', function(e) {
 			// console.log(e);
@@ -54,10 +57,24 @@ var Rabta = {
 				Rabta.showEditBox(p, e);
 			});
 		});
+	},
+
+	initEditBox: function() {
+		var d = Rabta.editBox.getElementsByClassName('btn-edit-done')[0];
+		var c = Rabta.editBox.getElementsByClassName('btn-edit-cancel')[0];
+		d.addEventListener('click', function(e) {
+			var popup = document.getElementsByClassName('popup-card')[0];
+			popup.getElementsByClassName('text')[0].innerHTML = Rabta.editBox.getElementsByClassName('edit-box-text')[0].value;
+			Rabta.editBox.classList.remove('overlay');
+		});
+		c.addEventListener('click', function(e) {
+			Rabta.editBox.classList.remove('overlay');
+		})
 	}
 };
 
 Rabta.makeMap()
+Rabta.initEditBox()
 
 // test codes
 Rabta.test = function() {
