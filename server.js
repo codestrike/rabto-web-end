@@ -13,27 +13,30 @@ app.get('/', function(req, res) {
 	res.sendFile(__dirname + '/public/index.html');
 });
 
-app.get('/get_all', function(req, res) {
+var query = function(sql, param, callback) {
 	pg.connect(
 		"postgres://" + credentials.pg.user + ":" + credentials.pg.password + "@" + credentials.pg.host + "/" + credentials.pg.database, 
 		function(err, client, done) {
 			if (err) {
 				console.log(err);
-				res.json({status:false});
+				callback(err);
 			} else {
-				var query = client.query('Select * From marker', '', function(err, result) {
-					done();
-					if (err) {
-						console.log(err);
-					} else {
-						console.log(result);
-						res.json({status:true, result:result});
-					}
-				})
+				client.query(sql, param, function(err, result) {
+					callback(err, result, done);
+				});
 			}
-		})
+		});
+};
 
-	// res.json(result)
+app.get('/get_all', function(req, res) {
+	query('Select * From marker', '', function(err, result, done) {
+		done();
+		if (err) {
+			console.log(err);
+		} else {
+			res.json(result);
+		}
+	});
 });
 
 // io connection response
