@@ -46,6 +46,17 @@ io.on('connection', function(socket) {
 	socket.on('disconnect', function() {
 		console.log('user disconnected');
 	});
+
+	// Marker Added
+	socket.on('new marker', function(m) {
+		query(
+			'Insert Into marker(lat, lng) Values ($1, $2)', 
+			[m.lat, m.lng],
+			function(err, result, done) {
+				done();
+				(!err)? io.emit('new marker', m) : console.log(err);
+			});
+	});
 });
 
 // Listen on port 3001

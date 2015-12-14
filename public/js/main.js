@@ -2,6 +2,7 @@
 var Rabta = {
 	map: L.map('map').setView([19, 72.8], 13),
 	editBox: document.getElementsByClassName('edit-box')[0],
+	socket: io(),
 	things: {},
 	getUniqueID: function() {
 		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -49,7 +50,8 @@ var Rabta = {
 		Rabta.map
 		.on('contextmenu', function(e) {
 			// console.log(e);
-			Rabta.createMarker(e.latlng.lat, e.latlng.lng);
+			//Rabta.createMarker(e.latlng.lat, e.latlng.lng);
+			Rabta.socket.emit('new marker', {lat:e.latlng.lat, lng:e.latlng.lng});
 		})
 		.on('popupopen', function(e) {
 			var p = document.getElementsByClassName('btn-edit')[0];
@@ -70,11 +72,18 @@ var Rabta = {
 		c.addEventListener('click', function(e) {
 			Rabta.editBox.classList.remove('overlay');
 		})
+	},
+
+	initSocketIo: function() {
+		Rabta.socket.on('new marker', function(m) {
+			Rabta.createMarker(m.lat, m.lng);
+		});
 	}
 };
 
 Rabta.makeMap()
 Rabta.initEditBox()
+Rabta.initSocketIo()
 
 // test codes
 Rabta.test = function() {
