@@ -17,7 +17,6 @@ body {
 .card .head {
 	padding: 10px;
 	padding-top: 15px;
-	padding-bottom: 15px;
 }
 
 .card .hero {
@@ -50,6 +49,10 @@ body {
 	margin-bottom: 0;
 }
 
+.leaflet-popup-content p {
+	margin: 0;
+}
+
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
 	box-shadow: 0 0 0 transparent;
 }
@@ -73,7 +76,7 @@ body {
 
 .overlay {
 	z-index: 100000;
-	background-color: #F5F5F5;
+	background-color: rgba(245, 245, 245, 0.95);
 	display: block;
 }
 
