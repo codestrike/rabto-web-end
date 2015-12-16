@@ -4,6 +4,7 @@ body {
 	color: #444;
 }
 
+/*Popup Card*/
 .card {
 	width: 300px;
 	min-height: 100px;
@@ -16,7 +17,6 @@ body {
 .card .head {
 	padding: 10px;
 	padding-top: 15px;
-	padding-bottom: 15px;
 }
 
 .card .hero {
@@ -29,7 +29,7 @@ body {
 	padding: 10px 7px;
 }
 
-.card .btn {
+.btn {
 	padding: 7px;
 	min-width: 40px;
 	border-width: 0;
@@ -40,13 +40,17 @@ body {
 	cursor: pointer;
 }
 
-.card .btn:hover {
+.btn:hover {
 	color: #616161;
 }
 
 /*Override Leaflet*/
 .leaflet-popup-content {
 	margin-bottom: 0;
+}
+
+.leaflet-popup-content p {
+	margin: 0;
 }
 
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
@@ -57,4 +61,41 @@ body {
 	padding: 0;
 	border-radius: 0;
 	background-color: transparent;
+}
+
+/*Edit Box*/
+.edit-box {
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	z-index: 0;
+	display: none;
+}
+
+.overlay {
+	z-index: 100000;
+	background-color: rgba(245, 245, 245, 0.95);
+	display: block;
+}
+
+.edit-box .head {
+	padding: 15px 10px;
+}
+
+.edit-box .container {
+	padding: 15px 15px;
+}
+
+input {
+	width: 100%;
+	font-size: 20px;
+	padding: 2px;
+	border-color: #616161;
+	background-color: transparent;
+	border-top-width: 0;
+	border-right-width: 0;
+	border-bottom-width: 2px;
+	border-left-width: 0; 
 }

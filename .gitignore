@@ -35,3 +35,6 @@ node_modules
 
 # Public images
 public/img/
+
+# Credentials, Private Data
+credentials.js
