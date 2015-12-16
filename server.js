@@ -14,6 +14,9 @@ try {
 	credentials = process.env.DATABASE_URL;
 }
 
+// Set port number from config
+app.set('port', (process.env.PORT || 5000));
+
 // ./public contains static files
 app.use(express.static('public'));
 
@@ -68,7 +71,7 @@ io.on('connection', function(socket) {
 	});
 });
 
-// Listen on port 3001
-var server = http.listen(3001, function() {
+// Listen
+var server = http.listen(app.get('port'), function() {
 	console.log('Listening on : http://localhost:' + server.address().port);
 });
