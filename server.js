@@ -2,8 +2,17 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var credentials = require("./credentials.js");
 var pg = require('pg');
+
+// Try for dev (local) else try for prod (heroku)
+var credentials = null;
+try {
+	var c = require("./credentials.js");
+	credentials = "postgres://" + c.pg.user + ":" + c.pg.password + "@" + c.pg.host + "/" + c.pg.database;
+} catch(e) {
+	console.log('[Looks like it is heroku]');
+	credentials = process.env.DATABASE_URL;
+}
 
 // ./public contains static files
 app.use(express.static('public'));
@@ -15,7 +24,7 @@ app.get('/', function(req, res) {
 
 var query = function(sql, param, callback) {
 	pg.connect(
-		"postgres://" + credentials.pg.user + ":" + credentials.pg.password + "@" + credentials.pg.host + "/" + credentials.pg.database, 
+		credentials, 
 		function(err, client, done) {
 			if (err) {
 				console.log(err);
