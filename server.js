@@ -20,7 +20,6 @@ app.set('port', (process.env.PORT || 5000));
 // ./public contains static files
 app.use(express.static('public'));
 
-// respond with hello world when GET request is made
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + '/public/index.html');
 });
@@ -68,6 +67,7 @@ io.on('connection', function(socket) {
 				done();
 				(!err)? io.emit('new marker', m) : console.log(err);
 			});
+		// console.log('[on(new merker)]', m);
 	});
 });
 
