@@ -18,10 +18,12 @@ var Rabta = {
 		Rabta.things[m._id] = m;
 		m.bindPopup(Rabta.getPopupFor(m._id))
 		m.addTo(Rabta.map);
+		// console.log('[createMarker()]', lat, lng, m._id, m);
 	},
 
 	// Popup
 	getPopupFor: function(id) {
+		// TODO use data coming from cloud
 		return (new DOMParser)
 			.parseFromString(`<div class="card popup-card">
 					<section class="head">
@@ -37,10 +39,17 @@ var Rabta = {
 	},
 
 	// Edit Box
-	showEditBox: function() {
-		var popup = document.getElementsByClassName('popup-card')[0];
-		console.log('Yay! p', popup);
-		Rabta.editBox.getElementsByClassName('edit-box-text')[0].value = popup.getElementsByClassName('text')[0].innerHTML;
+	showEditBox: function(lat, lng) {
+		try {
+			var popup = document.getElementsByClassName('popup-card')[0];
+			// console.log('Yay! p', popup);
+			Rabta.editBox.getElementsByClassName('edit-box-text')[0].value = popup.getElementsByClassName('text')[0].innerHTML;
+		} catch (e) {
+			// There is no .popup-card => this is new card
+			// console.log('[Will create a new card on .btn-done]');
+			Rabta.editBox.setAttribute('data-lat', lat);
+			Rabta.editBox.setAttribute('data-lng', lng);
+		}
 		Rabta.editBox.classList.add('overlay');
 	},
 	
@@ -49,9 +58,9 @@ var Rabta = {
 		L.tileLayer('http://{s}.jtile.osm.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(Rabta.map);
 		Rabta.map
 		.on('contextmenu', function(e) {
-			// console.log(e);
-			//Rabta.createMarker(e.latlng.lat, e.latlng.lng);
-			Rabta.socket.emit('new marker', {lat:e.latlng.lat, lng:e.latlng.lng});
+			// TODO edit box first then on done, emit
+			Rabta.showEditBox(e.latlng.lat, e.latlng.lng);
+			// Rabta.socket.emit('new marker', {lat:e.latlng.lat, lng:e.latlng.lng});
 		})
 		.on('popupopen', function(e) {
 			var p = document.getElementsByClassName('btn-edit')[0];
@@ -65,8 +74,19 @@ var Rabta = {
 		var d = Rabta.editBox.getElementsByClassName('btn-edit-done')[0];
 		var c = Rabta.editBox.getElementsByClassName('btn-edit-cancel')[0];
 		d.addEventListener('click', function(e) {
-			var popup = document.getElementsByClassName('popup-card')[0];
-			popup.getElementsByClassName('text')[0].innerHTML = Rabta.editBox.getElementsByClassName('edit-box-text')[0].value;
+			try {
+				var popup = document.getElementsByClassName('popup-card')[0];
+				popup.getElementsByClassName('text')[0].innerHTML = Rabta.editBox.getElementsByClassName('edit-box-text')[0].value;
+				// console.log('[.btn-done click]', popup);
+			} catch (e) {
+				// This is new card, so emit the event
+				Rabta.socket.emit('new marker', {
+					lat: Rabta.editBox.getAttribute('data-lat'),
+					lng: Rabta.editBox.getAttribute('data-lng'),
+					post_text: Rabta.editBox.getElementsByClassName('edit-box-text')[0].value
+				});
+				// console.log('[.btn-done catch]', e);
+			}
 			Rabta.editBox.classList.remove('overlay');
 		});
 		c.addEventListener('click', function(e) {
@@ -77,6 +97,7 @@ var Rabta = {
 	initSocketIo: function() {
 		Rabta.socket.on('new marker', function(m) {
 			Rabta.createMarker(m.lat, m.lng);
+			// console.log('[on(new marker)]', m);
 		});
 	}
 };
