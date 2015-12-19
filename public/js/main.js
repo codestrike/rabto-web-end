@@ -16,11 +16,13 @@ var Rabta = {
 	createMarker: function(lat, lng, id) {
 		// console.log('[createMarker()]', lat, lng, id);
 		if (!lat || !lng) return;
+		Rabta.socket.emit('old popups', {id:id});
 		var m = L.marker([lat, lng]);
 		m.id = id;
 		// m._id = Rabta.getUniqueID();
 		Rabta.things[m.id] = m;
-		m.bindPopup(Rabta.getPopupFor(m.id));
+		// change popup binding from on create to on click, :) On Demand
+		// m.bindPopup(Rabta.getPopupFor(m.id));
 		m.addTo(Rabta.map);
 	},
 
@@ -32,17 +34,17 @@ var Rabta = {
 	},
 
 	// Popup
-	getPopupFor: function(id) {
+	getPopupFor: function(popup) {
 		// TODO use data coming from cloud
 		return (new DOMParser)
 			.parseFromString(`<div class="card popup-card">
 					<section class="head">
-						<strong class="author">${id}</strong>
-						<p class="text">lorem impsum beat bee do</p>
+						<strong class="author">Dummy Bell</strong>
+						<p class="text">${popup.post_text}</p>
 					</section>
 					<div style="background-image:url('/img/b.jpg')" class="hero"></div>
 					<div class="foot">
-						<button class="btn btn-edit" data-id="popup-${id}">Edit</button>
+						<button class="btn btn-edit" data-id="popup-${popup.id}">Edit</button>
 					</div>
 				</div>`, 'text/html')
 			.lastChild.innerHTML;
@@ -124,6 +126,13 @@ var Rabta = {
 		})
 		.on('new popup', function(popup) {
 			console.log(popup);
+			Rabta.things[popup.marker].bindPopup(Rabta.getPopupFor(popup));
+		})
+		.on('old popups', function(popups) {
+			popups.forEach(function(popup) {
+				Rabta.things[popup.marker].bindPopup(Rabta.getPopupFor(popup));
+				console.log('[on(old popups)]', popup, Rabta.getPopupFor(popup));
+			});
 		});
 	}
 };
