@@ -102,14 +102,28 @@ io.on('connection', function(socket) {
 
 	// Popup
 	socket.on('old popups', function(marker) {
-		// send popup for this marker
 		query(
 			'Select * From popup Where marker = $1',
 			[marker.id],
 			function (err, popups) {
 				(!err)? socket.emit('old popups', popups.rows) : console.log(err);
-				console.log('[on(old popups)]', popups.rows);
+				// console.log('[on(old popups)]', popups.rows);
 			});
+	});
+
+	socket.on('modified popup', function(popup) {
+		query(
+			'Update popup Set post_text = $1, hash_tags = $2 Where id = $3 returning marker',
+			[popup.post_text, popup.hash_tags, popup.id],
+			function (err, result) {
+				if(!err) {
+					popup.marker = result.rows[0].marker;
+					io.emit('modified popup', popup);
+				} else {
+					console.log(err);
+				}
+			});
+		// console.log('[on(modified popup)]', popup);
 	});
 });
 
