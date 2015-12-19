@@ -4,7 +4,7 @@ var Rabta = {
 	editBox: document.getElementsByClassName('edit-box')[0],
 	socket: io(),
 	things: {},
-	
+
 	getUniqueID: function() {
 		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 		    var r = crypto.getRandomValues(new Uint8Array(1))[0]%16|0, v = c == 'x' ? r : (r&0x3|0x8);
@@ -13,13 +13,14 @@ var Rabta = {
 	},
 
 	// Marker
-	createMarker: function(lat, lng) {
-		// console.log('[createMarker()]', lat, lng);
+	createMarker: function(lat, lng, id) {
+		// console.log('[createMarker()]', lat, lng, id);
 		if (!lat || !lng) return;
 		var m = L.marker([lat, lng]);
-		m._id = Rabta.getUniqueID();
-		Rabta.things[m._id] = m;
-		m.bindPopup(Rabta.getPopupFor(m._id));
+		m.id = id;
+		// m._id = Rabta.getUniqueID();
+		Rabta.things[m.id] = m;
+		m.bindPopup(Rabta.getPopupFor(m.id));
 		m.addTo(Rabta.map);
 	},
 
@@ -90,6 +91,8 @@ var Rabta = {
 			try {
 				var popup = document.getElementsByClassName('popup-card')[0];
 				popup.getElementsByClassName('text')[0].innerHTML = Rabta.editBox.getElementsByClassName('edit-box-text')[0].value;
+
+				// Rabta.socket.emit('modified popup', )
 				// console.log('[.btn-done click]', popup);
 			} catch (e) {
 				// This is new card, so emit the event
@@ -110,14 +113,17 @@ var Rabta = {
 	initSocketIo: function() {
 		Rabta.socket
 		.on('new marker', function(marker) {
-			Rabta.createMarker(marker.lat, marker.lng);
+			Rabta.createMarker(marker.lat, marker.lng, marker.id);
 			// console.log('[on(new marker)]', marker);
 		})
 		.on('old markers', function(markers) {
 			markers.forEach(function(marker) {
-				Rabta.createMarker(marker.lat, marker.lng);
+				Rabta.createMarker(marker.lat, marker.lng, marker.id);
 				// console.log('[on(old markers)]', marker);
 			});
+		})
+		.on('new popup', function(popup) {
+			console.log(popup);
 		});
 	}
 };
