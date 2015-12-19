@@ -33,7 +33,8 @@ var query = function(sql, param, callback) {
 				callback(err);
 			} else {
 				client.query(sql, param, function(err, result) {
-					callback(err, result, done);
+					done();
+					callback(err, result);
 				});
 			}
 		});
@@ -42,13 +43,8 @@ var query = function(sql, param, callback) {
 // Deprecated! Use io event `old markers` instead.
 app.get('/get_all_markers', function(req, res) {
 	var result = {};
-	query('Select * From marker', '', function(err, markers, done) {
-		done();
-		if (err) {
-			console.log(err);
-		} else {
-			res.json(markers.rows);
-		}
+	query('Select * From marker', '', function(err, markers) {
+		(!err)? res.json(markers.rows) : console.log(err);;
 	});
 });
 
@@ -65,28 +61,26 @@ io.on('connection', function(socket) {
 		query(
 			'Insert Into marker (lat, lng) Values ($1, $2)', 
 			[marker.lat, marker.lng],
-			function(err, result, done) {
-				done();
+			function(err, result) {
 				(!err)? io.emit('new marker', marker) : console.log(err);
 			});
 		// console.log('[on(new merker)]', marker);
 	});
 
 	socket.on('old markers', function(view) {
-		query('Select * From marker', '', function(err, markers, done) {
-			done();
+		query('Select * From marker', '', function(err, markers) {
 			(!err)? socket.emit('old markers', markers.rows) : console.log(err);
 			// console.log('[on(old markers)]', markers.rows);
 		});
 	});
 
+	// Popup
 	socket.on('old popup', function(marker) {
 		// send popup for this marker
 		query(
 			'Select * From popup Where id = $1',
 			[marker.id],
-			function (err, popup, done) {
-				done();
+			function (err, popup) {
 				(!err)? socket.emit('old popup', popup.rows) : console.log(err);
 			});
 	});
