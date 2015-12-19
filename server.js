@@ -48,6 +48,23 @@ app.get('/get_all_markers', function(req, res) {
 	});
 });
 
+var storePopup = function(marker) {
+	query(
+		'Insert Into popup (post_text, marker) Values ($1, $2) returning id',
+		[marker.post_text, marker.id],
+		function(err, result) {
+			if (err) {
+				console.log(err);
+			} else {
+				io.emit('new popup', {
+					id: result.rows[0].id,
+					marker: marker.id
+				});
+			}
+		});
+	// console.log('[query()]', marker);
+};
+
 // io connection response
 io.on('connection', function(socket) {
 	console.log('a user connected');
@@ -59,12 +76,20 @@ io.on('connection', function(socket) {
 	// Marker 
 	socket.on('new marker', function(marker) {
 		query(
-			'Insert Into marker (lat, lng) Values ($1, $2)', 
+			'Insert Into marker (lat, lng) Values ($1, $2) returning id', 
 			[marker.lat, marker.lng],
 			function(err, result) {
-				(!err)? io.emit('new marker', marker) : console.log(err);
+				if (err) {
+					console.log(err);
+				} else {
+					marker.id = result.rows[0].id;
+					io.emit('new marker', marker);
+
+					// Cool, we have marker id. Now store popup
+					storePopup(marker);
+				}
+				// console.log('[on(new merker)]', marker);
 			});
-		// console.log('[on(new merker)]', marker);
 	});
 
 	socket.on('old markers', function(view) {
