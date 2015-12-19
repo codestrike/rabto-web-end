@@ -4,6 +4,7 @@ var Rabta = {
 	editBox: document.getElementsByClassName('edit-box')[0],
 	socket: io(),
 	things: {},
+
 	getUniqueID: function() {
 		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 		    var r = crypto.getRandomValues(new Uint8Array(1))[0]%16|0, v = c == 'x' ? r : (r&0x3|0x8);
@@ -12,46 +13,69 @@ var Rabta = {
 	},
 
 	// Marker
-	createMarker: function(lat, lng) {
+	createMarker: function(lat, lng, id) {
+		// console.log('[createMarker()]', lat, lng, id);
+		if (!lat || !lng) return;
+
+		// change popup binding from on create to on click, :) On Demand
+		Rabta.socket.emit('old popups', {id:id});
+		
 		var m = L.marker([lat, lng]);
-		m._id = Rabta.getUniqueID();
-		Rabta.things[m._id] = m;
-		m.bindPopup(Rabta.getPopupFor(m._id))
+		m.id = id;
+		Rabta.things[m.id + '-marker'] = m;
 		m.addTo(Rabta.map);
 	},
 
+	getAllMarkersInTheView: function() {
+		// TODO detect the view and only get markers for that view
+		// view is a rectangular area made by lat and lng, [0,0,0,0] is substitute as sever don't care about view
+		Rabta.socket.emit('old markers', {view: [0,0,0,0]});
+		// console.log('[getAllMarkersInTheView()]');
+	},
+
 	// Popup
-	getPopupFor: function(id) {
+	getPopupFor: function(popup) {
 		return (new DOMParser)
-			.parseFromString(`<div class="card popup-card">
+			.parseFromString(`<div class="card popup-card" data-popup-id="${popup.id}">
 					<section class="head">
-						<strong class="author">${id}</strong>
-						<p class="text">lorem impsum beat bee do</p>
+						<strong class="author">Dummy Bell</strong>
+						<p class="text">${popup.post_text}</p>
 					</section>
 					<div style="background-image:url('/img/b.jpg')" class="hero"></div>
 					<div class="foot">
-						<button class="btn btn-edit" data-id="popup-${id}">Edit</button>
+						<button class="btn btn-edit">Edit</button>
 					</div>
 				</div>`, 'text/html')
 			.lastChild.innerHTML;
 	},
 
 	// Edit Box
-	showEditBox: function() {
-		var popup = document.getElementsByClassName('popup-card')[0];
-		console.log('Yay! p', popup);
-		Rabta.editBox.getElementsByClassName('edit-box-text')[0].value = popup.getElementsByClassName('text')[0].innerHTML;
+	showEditBox: function(lat, lng) {
+		try {
+			var popup = document.getElementsByClassName('popup-card')[0];
+			Rabta.editBox.getElementsByClassName('edit-box-text')[0].value = popup.getElementsByClassName('text')[0].innerHTML;
+		} catch (e) {
+			// There is no .popup-card => this is new card
+			// console.log('[Will create a new card on .btn-done]');
+			Rabta.editBox.setAttribute('data-lat', lat);
+			Rabta.editBox.setAttribute('data-lng', lng);
+		}
 		Rabta.editBox.classList.add('overlay');
 	},
 	
 	// Map
 	makeMap: function() {
+		// Bootup map
 		L.tileLayer('http://{s}.jtile.osm.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(Rabta.map);
+		
+		// Get exising markers
+		Rabta.getAllMarkersInTheView();
+
+		// Set event listeners 
 		Rabta.map
 		.on('contextmenu', function(e) {
-			// console.log(e);
-			//Rabta.createMarker(e.latlng.lat, e.latlng.lng);
-			Rabta.socket.emit('new marker', {lat:e.latlng.lat, lng:e.latlng.lng});
+			Rabta.showEditBox(e.latlng.lat, e.latlng.lng);
+			// Rabta.socket.emit('new marker', {lat:e.latlng.lat, lng:e.latlng.lng});
 		})
 		.on('popupopen', function(e) {
 			var p = document.getElementsByClassName('btn-edit')[0];
@@ -65,8 +89,25 @@ var Rabta = {
 		var d = Rabta.editBox.getElementsByClassName('btn-edit-done')[0];
 		var c = Rabta.editBox.getElementsByClassName('btn-edit-cancel')[0];
 		d.addEventListener('click', function(e) {
-			var popup = document.getElementsByClassName('popup-card')[0];
-			popup.getElementsByClassName('text')[0].innerHTML = Rabta.editBox.getElementsByClassName('edit-box-text')[0].value;
+			var post_text = Rabta.editBox.getElementsByClassName('edit-box-text')[0].value;
+			try {
+				var popup = document.getElementsByClassName('popup-card')[0];
+				popup.getElementsByClassName('text')[0].innerHTML = post_text;
+
+				Rabta.socket.emit('modified popup', {
+					id: popup.getAttribute('data-popup-id'),
+					post_text: post_text
+				});
+				// console.log('[.btn-done click]', popup);
+			} catch (e) {
+				// This is new card, so emit the event
+				Rabta.socket.emit('new marker', {
+					lat: Rabta.editBox.getAttribute('data-lat'),
+					lng: Rabta.editBox.getAttribute('data-lng'),
+					post_text: post_text
+				});
+				// console.log('[.btn-done catch]', Rabta.editBox.getAttribute('data-lat'), Rabta.editBox.getAttribute('data-lng'));
+			}
 			Rabta.editBox.classList.remove('overlay');
 		});
 		c.addEventListener('click', function(e) {
@@ -75,15 +116,40 @@ var Rabta = {
 	},
 
 	initSocketIo: function() {
-		Rabta.socket.on('new marker', function(m) {
-			Rabta.createMarker(m.lat, m.lng);
+		Rabta.socket
+		.on('new marker', function(marker) {
+			Rabta.createMarker(marker.lat, marker.lng, marker.id);
+			// console.log('[on(new marker)]', marker);
+		})
+		.on('old markers', function(markers) {
+			markers.forEach(function(marker) {
+				Rabta.createMarker(marker.lat, marker.lng, marker.id);
+				// console.log('[on(old markers)]', marker);
+			});
+		})
+		.on('new popup', function(popup) {
+			console.log(popup);
+			Rabta.things[popup.marker + '-marker'].bindPopup(Rabta.getPopupFor(popup));
+			Rabta.things[popup.id + '-popup'] = popup;
+		})
+		.on('old popups', function(popups) {
+			popups.forEach(function(popup) {
+				Rabta.things[popup.marker + '-marker'].bindPopup(Rabta.getPopupFor(popup));
+				Rabta.things[popup.id + '-popup'] = popup;
+				// console.log('[on(old popups)]', popup, Rabta.getPopupFor(popup));
+			});
+		})
+		.on('modified popup', function(popup) {
+			Rabta.things[popup.marker + '-marker'].unbindPopup();
+			Rabta.things[popup.marker + '-marker'].bindPopup(Rabta.getPopupFor(popup));
+			Rabta.things[popup.id + '-popup'] = popup;
 		});
 	}
 };
 
 Rabta.makeMap()
-Rabta.initEditBox()
 Rabta.initSocketIo()
+Rabta.initEditBox()
 
 // test codes
 Rabta.test = function() {
