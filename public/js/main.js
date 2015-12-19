@@ -16,13 +16,13 @@ var Rabta = {
 	createMarker: function(lat, lng, id) {
 		// console.log('[createMarker()]', lat, lng, id);
 		if (!lat || !lng) return;
+
+		// change popup binding from on create to on click, :) On Demand
 		Rabta.socket.emit('old popups', {id:id});
+		
 		var m = L.marker([lat, lng]);
 		m.id = id;
-		// m._id = Rabta.getUniqueID();
 		Rabta.things[m.id] = m;
-		// change popup binding from on create to on click, :) On Demand
-		// m.bindPopup(Rabta.getPopupFor(m.id));
 		m.addTo(Rabta.map);
 	},
 
@@ -35,7 +35,6 @@ var Rabta = {
 
 	// Popup
 	getPopupFor: function(popup) {
-		// TODO use data coming from cloud
 		return (new DOMParser)
 			.parseFromString(`<div class="card popup-card">
 					<section class="head">
@@ -131,7 +130,7 @@ var Rabta = {
 		.on('old popups', function(popups) {
 			popups.forEach(function(popup) {
 				Rabta.things[popup.marker].bindPopup(Rabta.getPopupFor(popup));
-				console.log('[on(old popups)]', popup, Rabta.getPopupFor(popup));
+				// console.log('[on(old popups)]', popup, Rabta.getPopupFor(popup));
 			});
 		});
 	}

@@ -58,7 +58,8 @@ var storePopup = function(marker) {
 			} else {
 				io.emit('new popup', {
 					id: result.rows[0].id,
-					marker: marker.id
+					marker: marker.id,
+					post_text: marker.post_text
 				});
 			}
 		});
