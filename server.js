@@ -69,14 +69,14 @@ io.on('connection', function(socket) {
 				done();
 				(!err)? io.emit('new marker', marker) : console.log(err);
 			});
-		console.log('[on(new merker)]', marker);
+		// console.log('[on(new merker)]', marker);
 	});
 
 	socket.on('old markers', function(view) {
 		query('Select * From marker', '', function(err, markers, done) {
 			done();
 			(!err)? socket.emit('old markers', markers.rows) : console.log(err);
-			console.log('[on(old markers)]', markers.rows);
+			// console.log('[on(old markers)]', markers.rows);
 		});
 	});
 

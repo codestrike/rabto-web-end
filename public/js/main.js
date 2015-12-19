@@ -13,7 +13,7 @@ var Rabta = {
 
 	// Marker
 	createMarker: function(lat, lng) {
-		console.log('[createMarker()]', lat, lng);
+		// console.log('[createMarker()]', lat, lng);
 		if (!lat || !lng) return;
 		var m = L.marker([lat, lng]);
 		m._id = Rabta.getUniqueID();
@@ -26,7 +26,7 @@ var Rabta = {
 		// TODO detect the view and only get markers for that view
 		// view is a rectangular area made by lat and lng, [0,0,0,0] is substitute as sever don't care about view
 		Rabta.socket.emit('old markers', {view: [0,0,0,0]});
-		console.log('[getAllMarkersInTheView()]');
+		// console.log('[getAllMarkersInTheView()]');
 	},
 
 	// Popup
@@ -50,11 +50,10 @@ var Rabta = {
 	showEditBox: function(lat, lng) {
 		try {
 			var popup = document.getElementsByClassName('popup-card')[0];
-			// console.log('Yay! p', popup);
 			Rabta.editBox.getElementsByClassName('edit-box-text')[0].value = popup.getElementsByClassName('text')[0].innerHTML;
 		} catch (e) {
 			// There is no .popup-card => this is new card
-			console.log('[Will create a new card on .btn-done]');
+			// console.log('[Will create a new card on .btn-done]');
 			Rabta.editBox.setAttribute('data-lat', lat);
 			Rabta.editBox.setAttribute('data-lng', lng);
 		}
@@ -98,7 +97,7 @@ var Rabta = {
 					lng: Rabta.editBox.getAttribute('data-lng'),
 					post_text: Rabta.editBox.getElementsByClassName('edit-box-text')[0].value
 				});
-				console.log('[.btn-done catch]', Rabta.editBox.getAttribute('data-lat'), Rabta.editBox.getAttribute('data-lng'));
+				// console.log('[.btn-done catch]', Rabta.editBox.getAttribute('data-lat'), Rabta.editBox.getAttribute('data-lng'));
 			}
 			Rabta.editBox.classList.remove('overlay');
 		});
@@ -111,12 +110,12 @@ var Rabta = {
 		Rabta.socket
 		.on('new marker', function(marker) {
 			Rabta.createMarker(marker.lat, marker.lng);
-			console.log('[on(new marker)]', marker);
+			// console.log('[on(new marker)]', marker);
 		})
 		.on('old markers', function(markers) {
 			markers.forEach(function(marker) {
 				Rabta.createMarker(marker.lat, marker.lng);
-				console.log('[on(old markers)]', marker);
+				// console.log('[on(old markers)]', marker);
 			});
 		});
 	}
