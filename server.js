@@ -39,13 +39,15 @@ var query = function(sql, param, callback) {
 		});
 };
 
-app.get('/get_all', function(req, res) {
-	query('Select * From marker', '', function(err, result, done) {
+// Deprecated! Use io event `old markers` instead.
+app.get('/get_all_markers', function(req, res) {
+	var result = {};
+	query('Select * From marker', '', function(err, markers, done) {
 		done();
 		if (err) {
 			console.log(err);
 		} else {
-			res.json(result);
+			res.json(markers.rows);
 		}
 	});
 });
@@ -58,16 +60,35 @@ io.on('connection', function(socket) {
 		console.log('user disconnected');
 	});
 
-	// Marker Added
-	socket.on('new marker', function(m) {
+	// Marker 
+	socket.on('new marker', function(marker) {
 		query(
-			'Insert Into marker(lat, lng) Values ($1, $2)', 
-			[m.lat, m.lng],
+			'Insert Into marker (lat, lng) Values ($1, $2)', 
+			[marker.lat, marker.lng],
 			function(err, result, done) {
 				done();
-				(!err)? io.emit('new marker', m) : console.log(err);
+				(!err)? io.emit('new marker', marker) : console.log(err);
 			});
-		// console.log('[on(new merker)]', m);
+		console.log('[on(new merker)]', marker);
+	});
+
+	socket.on('old markers', function(view) {
+		query('Select * From marker', '', function(err, markers, done) {
+			done();
+			(!err)? socket.emit('old markers', markers.rows) : console.log(err);
+			console.log('[on(old markers)]', markers.rows);
+		});
+	});
+
+	socket.on('old popup', function(marker) {
+		// send popup for this marker
+		query(
+			'Select * From popup Where id = $1',
+			[marker.id],
+			function (err, popup, done) {
+				done();
+				(!err)? socket.emit('old popup', popup.rows) : console.log(err);
+			});
 	});
 });
 
