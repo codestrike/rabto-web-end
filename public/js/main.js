@@ -22,7 +22,7 @@ var Rabta = {
 		
 		var m = L.marker([lat, lng]);
 		m.id = id;
-		Rabta.things[m.id] = m;
+		Rabta.things[m.id + '-marker'] = m;
 		m.addTo(Rabta.map);
 	},
 
@@ -36,14 +36,14 @@ var Rabta = {
 	// Popup
 	getPopupFor: function(popup) {
 		return (new DOMParser)
-			.parseFromString(`<div class="card popup-card">
+			.parseFromString(`<div class="card popup-card" data-popup-id="${popup.id}">
 					<section class="head">
 						<strong class="author">Dummy Bell</strong>
 						<p class="text">${popup.post_text}</p>
 					</section>
 					<div style="background-image:url('/img/b.jpg')" class="hero"></div>
 					<div class="foot">
-						<button class="btn btn-edit" data-id="popup-${popup.id}">Edit</button>
+						<button class="btn btn-edit">Edit</button>
 					</div>
 				</div>`, 'text/html')
 			.lastChild.innerHTML;
@@ -89,18 +89,22 @@ var Rabta = {
 		var d = Rabta.editBox.getElementsByClassName('btn-edit-done')[0];
 		var c = Rabta.editBox.getElementsByClassName('btn-edit-cancel')[0];
 		d.addEventListener('click', function(e) {
+			var post_text = Rabta.editBox.getElementsByClassName('edit-box-text')[0].value;
 			try {
 				var popup = document.getElementsByClassName('popup-card')[0];
-				popup.getElementsByClassName('text')[0].innerHTML = Rabta.editBox.getElementsByClassName('edit-box-text')[0].value;
+				popup.getElementsByClassName('text')[0].innerHTML = post_text;
 
-				// Rabta.socket.emit('modified popup', )
+				Rabta.socket.emit('modified popup', {
+					id: popup.getAttribute('data-popup-id'),
+					post_text: post_text
+				});
 				// console.log('[.btn-done click]', popup);
 			} catch (e) {
 				// This is new card, so emit the event
 				Rabta.socket.emit('new marker', {
 					lat: Rabta.editBox.getAttribute('data-lat'),
 					lng: Rabta.editBox.getAttribute('data-lng'),
-					post_text: Rabta.editBox.getElementsByClassName('edit-box-text')[0].value
+					post_text: post_text
 				});
 				// console.log('[.btn-done catch]', Rabta.editBox.getAttribute('data-lat'), Rabta.editBox.getAttribute('data-lng'));
 			}
@@ -125,13 +129,20 @@ var Rabta = {
 		})
 		.on('new popup', function(popup) {
 			console.log(popup);
-			Rabta.things[popup.marker].bindPopup(Rabta.getPopupFor(popup));
+			Rabta.things[popup.marker + '-marker'].bindPopup(Rabta.getPopupFor(popup));
+			Rabta.things[popup.id + '-popup'] = popup;
 		})
 		.on('old popups', function(popups) {
 			popups.forEach(function(popup) {
-				Rabta.things[popup.marker].bindPopup(Rabta.getPopupFor(popup));
+				Rabta.things[popup.marker + '-marker'].bindPopup(Rabta.getPopupFor(popup));
+				Rabta.things[popup.id + '-popup'] = popup;
 				// console.log('[on(old popups)]', popup, Rabta.getPopupFor(popup));
 			});
+		})
+		.on('modified popup', function(popup) {
+			Rabta.things[popup.marker + '-marker'].unbindPopup();
+			Rabta.things[popup.marker + '-marker'].bindPopup(Rabta.getPopupFor(popup));
+			Rabta.things[popup.id + '-popup'] = popup;
 		});
 	}
 };
