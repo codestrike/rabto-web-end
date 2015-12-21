@@ -97,6 +97,7 @@ var Rabta = {
 			fileReader.onload = function(fileLoadEvent){
 				 post_image = fileLoadEvent.target.result;
 				// console.log(post_image);
+			}
 		});
 		d.addEventListener('click', function(e) {
 			var post_text = Rabta.editBox.getElementsByClassName('edit-box-text')[0].value;

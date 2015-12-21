@@ -65,6 +65,9 @@ var storePopup = function(marker) {
 			if (err) {
 				console.log(err);
 			} else {
+				//Upload Methed is called
+				var result = UploadImage(marker.post_image);
+				console.log("response from server 2", result);
 				io.emit('new popup', {
 					id: result.rows[0].id,
 					marker: marker.id,
@@ -74,6 +77,18 @@ var storePopup = function(marker) {
 		});
 	// console.log('[query()]', marker);
 };
+
+//imgae upload function
+
+var UploadImage = function(uri){
+	var response = "";
+	cloudy.uploader.upload(uri, function(result) { 
+  		response = result;
+		console.log("response from server 1", result);
+  		
+	});
+	return response;
+}
 
 // io connection response
 io.on('connection', function(socket) {
