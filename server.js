@@ -3,12 +3,21 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var pg = require('pg');
+var fs = require('fs');
+var cloudy = require('cloudinary');
 
 // Try for dev (local) else try for prod (heroku)
 var credentials = null;
 try {
 	var c = require("./credentials.js");
 	credentials = "postgres://" + c.pg.user + ":" + c.pg.password + "@" + c.pg.host + "/" + c.pg.database;
+
+	//Cloudinary Confguration
+	cloudy.config({
+		cloud_name : c.cloudy.cloud_name,
+		api_key : c.cloudy.api_key,
+		api_secret : c.cloudy.api_secret
+	});
 } catch(e) {
 	console.log('[Looks like it is heroku]');
 	credentials = process.env.DATABASE_URL;
