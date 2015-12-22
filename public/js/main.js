@@ -66,7 +66,7 @@ var Rabta = {
 	// Map
 	makeMap: function() {
 		// Bootup map
-		L.tileLayer('http://{s}.jtile.osm.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(Rabta.map);
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(Rabta.map);
 		
 		// Get exising markers
 		Rabta.getAllMarkersInTheView();
