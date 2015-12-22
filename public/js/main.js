@@ -93,10 +93,12 @@ var Rabta = {
 		//convert image into base64
 		img.addEventListener('change',function(e){
 			var fileReader = new FileReader();
-			fileReader.readAsDataURL(img.files[0]);
-			fileReader.onload = function(fileLoadEvent){
-				 post_image = fileLoadEvent.target.result;
-				// console.log(post_image);
+			if(img.files[0].name.length>0){
+				fileReader.readAsDataURL(img.files[0]);
+				fileReader.onload = function(fileLoadEvent){
+					 post_image = fileLoadEvent.target.result;
+					console.log("[Client msg ]	" ,post_image);
+			}
 			}
 		});
 		d.addEventListener('click', function(e) {
