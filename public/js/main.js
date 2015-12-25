@@ -88,6 +88,19 @@ var Rabta = {
 	initEditBox: function() {
 		var d = Rabta.editBox.getElementsByClassName('btn-edit-done')[0];
 		var c = Rabta.editBox.getElementsByClassName('btn-edit-cancel')[0];
+		var img = Rabta.editBox.getElementsByClassName("image")[0];
+		var post_image = '';
+		//convert image into base64
+		img.addEventListener('change',function(e){
+			var fileReader = new FileReader();
+			if(img.files[0].name.length>0){
+				fileReader.readAsDataURL(img.files[0]);
+				fileReader.onload = function(fileLoadEvent){
+					 post_image = fileLoadEvent.target.result;
+					console.log("[Client msg ]	" ,post_image);
+			}
+			}
+		});
 		d.addEventListener('click', function(e) {
 			var post_text = Rabta.editBox.getElementsByClassName('edit-box-text')[0].value;
 			try {
@@ -104,7 +117,8 @@ var Rabta = {
 				Rabta.socket.emit('new marker', {
 					lat: Rabta.editBox.getAttribute('data-lat'),
 					lng: Rabta.editBox.getAttribute('data-lng'),
-					post_text: post_text
+					post_text: post_text,
+					post_image: post_image
 				});
 				// console.log('[.btn-done catch]', Rabta.editBox.getAttribute('data-lat'), Rabta.editBox.getAttribute('data-lng'));
 			}
