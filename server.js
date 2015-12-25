@@ -136,6 +136,20 @@ io.on('connection', function(socket) {
 		});
 	});
 
+	socket.on('delete marker', function(id) {
+		query(
+			'Delete From marker Where id = $1',
+			[id],
+			function(err, result) {
+				if (err) {
+					console.log(err);
+				} else {
+					io.emit('delete marker', id);
+				}
+			});
+		// console.log('[on(delete marker)]', id);
+	});
+
 	// Popup
 	socket.on('old popups', function(marker) {
 		query(
