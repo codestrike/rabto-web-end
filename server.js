@@ -71,24 +71,34 @@ var storePopup = function(marker) {
 			if (err) {
 				console.log(err);
 			} else {
-				//Upload Methed is called
-				io.emit('new popup', {
+				uploadImage({
 					id: result.rows[0].id,
 					marker: marker.id,
-					post_text: marker.post_text
+					post_text: marker.post_text,
+					base64_image: marker.post_image
 				});
 			}
 		});
-		uploadImage(marker.post_image);
 	// console.log('[query()]', marker);
 };
 
 //imgae upload function
 
-var uploadImage = function(uri){
-	cloudy.uploader.upload(uri, function(result) { 
+var uploadImage = function(popup) {
+	cloudy.uploader.upload(popup.base64_image, function(result) { 
 		console.log("[Response from  Cloudinary server]", result);
-		//TODO: save result in database
+		query(
+			'Update popup Set post_image = $1 Where id = $2',
+			[result.secure_url, popup.id],
+			function(err, result) {
+				if (err) {
+					console.log();
+				} else {
+					delete popup.base64_image;
+					popup.post_image = result.secure_url;
+					io.emit('new popup', popup);
+				}
+			});
 	});
 }
 
