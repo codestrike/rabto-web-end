@@ -79,13 +79,13 @@ var storePopup = function(marker) {
 				});
 			}
 		});
-		UploadImage(marker.post_image);
+		uploadImage(marker.post_image);
 	// console.log('[query()]', marker);
 };
 
 //imgae upload function
 
-var UploadImage = function(uri){
+var uploadImage = function(uri){
 	cloudy.uploader.upload(uri, function(result) { 
 		console.log("[Response from  Cloudinary server]", result);
 		//TODO: save result in database
