@@ -21,6 +21,12 @@ try {
 } catch(e) {
 	console.log('[Looks like it is heroku]');
 	credentials = process.env.DATABASE_URL;
+
+	cloudy.config({
+		cloud_name: process.env.CLOUDY_NAME,
+		api_key: process.env.CLOUDY_API_KEY,
+		api_secret: process.env.CLOUDY_SECRET
+	});
 }
 
 // Set port number from config
