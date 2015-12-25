@@ -41,7 +41,7 @@ var Rabta = {
 						<strong class="author">Dummy Bell</strong>
 						<p class="text">${popup.post_text}</p>
 					</section>
-					<div style="background-image:url('/img/b.jpg')" class="hero"></div>
+					<div style="background-image:url('${popup.post_image}')" class="hero"></div>
 					<div class="foot">
 						<button class="btn btn-edit">Edit</button>
 					</div>

@@ -85,18 +85,18 @@ var storePopup = function(marker) {
 //imgae upload function
 
 var uploadImage = function(popup) {
-	cloudy.uploader.upload(popup.base64_image, function(result) { 
-		console.log("[Response from  Cloudinary server]", result);
+	cloudy.uploader.upload(popup.base64_image, function(response) { 
 		query(
 			'Update popup Set post_image = $1 Where id = $2',
-			[result.secure_url, popup.id],
+			[response.secure_url, popup.id],
 			function(err, result) {
 				if (err) {
 					console.log();
 				} else {
 					delete popup.base64_image;
-					popup.post_image = result.secure_url;
+					popup.post_image = response.secure_url;
 					io.emit('new popup', popup);
+					console.log("[uploadImage()]", popup);
 				}
 			});
 	});
