@@ -56,6 +56,13 @@ var Rabta = {
 			var popup = document.getElementsByClassName('popup-card')[0];
 			Rabta.editBox.getElementsByClassName('edit-box-text')[0].value = popup.getElementsByClassName('text')[0].innerHTML;
 			Rabta.editBox.getElementsByClassName('image')[0].setAttribute('hidden', true);
+
+			if (window.getComputedStyle(document.body).backgroundBlendMode) {
+				var post_image = Rabta.things[popup.getAttribute('data-popup-id') + '-popup'].post_image;
+				Rabta.editBox.style.backgroundImage = `url('${post_image}')`;
+				Rabta.editBox.style.backgroundSize = 'cover';
+				Rabta.editBox.style.backgroundBlendMode = 'color-dodge';
+			}
 		} catch (e) {
 			// There is no .popup-card => this is new card
 			// console.log('[Will create a new card on .btn-done]');
