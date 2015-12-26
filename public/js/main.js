@@ -44,6 +44,7 @@ var Rabta = {
 					<div style="background-image:url('${popup.post_image}')" class="hero"></div>
 					<div class="foot">
 						<button class="btn btn-edit">Edit</button>
+						<button class="btn btn-delete">Delete</button>
 					</div>
 				</div>`, 'text/html')
 			.lastChild.innerHTML;
@@ -54,11 +55,20 @@ var Rabta = {
 		try {
 			var popup = document.getElementsByClassName('popup-card')[0];
 			Rabta.editBox.getElementsByClassName('edit-box-text')[0].value = popup.getElementsByClassName('text')[0].innerHTML;
+			Rabta.editBox.getElementsByClassName('image')[0].setAttribute('hidden', true);
+
+			if (window.getComputedStyle(document.body).backgroundBlendMode) {
+				var post_image = Rabta.things[popup.getAttribute('data-popup-id') + '-popup'].post_image;
+				Rabta.editBox.style.backgroundImage = `url('${post_image}')`;
+				Rabta.editBox.style.backgroundSize = 'cover';
+				Rabta.editBox.style.backgroundBlendMode = 'color-dodge';
+			}
 		} catch (e) {
 			// There is no .popup-card => this is new card
 			// console.log('[Will create a new card on .btn-done]');
 			Rabta.editBox.setAttribute('data-lat', lat);
 			Rabta.editBox.setAttribute('data-lng', lng);
+			Rabta.editBox.getElementsByClassName('image')[0].removeAttribute('hidden');
 		}
 		Rabta.editBox.classList.add('overlay');
 	},
@@ -82,6 +92,17 @@ var Rabta = {
 			p.addEventListener('click', function(e) {
 				Rabta.showEditBox(p, e);
 			});
+
+			var deleteBtn = document.getElementsByClassName("btn-delete")[0];
+			deleteBtn.addEventListener('click', function(e) {
+				if (confirm('Are you determined enough to delete this ?')) {
+					var popupId = document.getElementsByClassName('popup-card')[0].getAttribute('data-popup-id');
+					var popup = Rabta.things[popupId + '-popup'];
+					Rabta.socket.emit('delete marker', popup.marker);
+					console.log('[makeMap.on popupopen confirm]', popup.marker);
+				}
+				console.log('[makeMap.on popupopen]', deleteBtn);
+			});
 		});
 	},
 
@@ -90,6 +111,7 @@ var Rabta = {
 		var c = Rabta.editBox.getElementsByClassName('btn-edit-cancel')[0];
 		var img = Rabta.editBox.getElementsByClassName("image")[0];
 		var post_image = '';
+
 		//convert image into base64
 		img.addEventListener('change',function(e){
 			var fileReader = new FileReader();
@@ -101,6 +123,7 @@ var Rabta = {
 			}
 			}
 		});
+
 		d.addEventListener('click', function(e) {
 			var post_text = Rabta.editBox.getElementsByClassName('edit-box-text')[0].value;
 			try {
@@ -124,9 +147,10 @@ var Rabta = {
 			}
 			Rabta.editBox.classList.remove('overlay');
 		});
+
 		c.addEventListener('click', function(e) {
 			Rabta.editBox.classList.remove('overlay');
-		})
+		});
 	},
 
 	initSocketIo: function() {
@@ -157,7 +181,11 @@ var Rabta = {
 			Rabta.things[popup.marker + '-marker'].unbindPopup();
 			Rabta.things[popup.marker + '-marker'].bindPopup(Rabta.getPopupFor(popup));
 			Rabta.things[popup.id + '-popup'] = popup;
-		});
+		})
+		.on('delete marker', function(id) {
+			Rabta.map.removeLayer(Rabta.things[id + '-marker']);
+			delete Rabta.things[id + '-marker'];
+		})
 	}
 };
 
