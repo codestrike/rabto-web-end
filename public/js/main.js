@@ -55,11 +55,13 @@ var Rabta = {
 		try {
 			var popup = document.getElementsByClassName('popup-card')[0];
 			Rabta.editBox.getElementsByClassName('edit-box-text')[0].value = popup.getElementsByClassName('text')[0].innerHTML;
+			Rabta.editBox.getElementsByClassName('image')[0].setAttribute('hidden', true);
 		} catch (e) {
 			// There is no .popup-card => this is new card
 			// console.log('[Will create a new card on .btn-done]');
 			Rabta.editBox.setAttribute('data-lat', lat);
 			Rabta.editBox.setAttribute('data-lng', lng);
+			Rabta.editBox.getElementsByClassName('image')[0].removeAttribute('hidden');
 		}
 		Rabta.editBox.classList.add('overlay');
 	},
