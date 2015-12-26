@@ -12,13 +12,18 @@ var Rabta = {
 		});
 	},
 
+	// Image resizing function
+	getResizedUrl: function(url, height, width) {
+		return url.replace(/upload\/\w+/i,`upload/w_${width},h_${height},c_fill`);
+	},
+
 	// Marker
 	createMarker: function(lat, lng, id) {
 		// console.log('[createMarker()]', lat, lng, id);
 		if (!lat || !lng) return;
 
 		// change popup binding from on create to on click, :) On Demand
-		Rabta.socket.emit('old popups', {id:id});
+		// Rabta.socket.emit('old popups', {id:id});
 		
 		var m = L.marker([lat, lng]);
 		m.id = id;
@@ -35,13 +40,14 @@ var Rabta = {
 
 	// Popup
 	getPopupFor: function(popup) {
+		console.log('[getPopupFor()]', popup);
 		return (new DOMParser)
 			.parseFromString(`<div class="card popup-card" data-popup-id="${popup.id}">
 					<section class="head">
 						<strong class="author">Dummy Bell</strong>
 						<p class="text">${popup.post_text}</p>
 					</section>
-					<div style="background-image:url('${popup.post_image}')" class="hero"></div>
+					<div style="background-image:url('${Rabta.getResizedUrl(popup.post_image, 300, 300)}')" class="hero"></div>
 					<div class="foot">
 						<button class="btn btn-edit">Edit</button>
 						<button class="btn btn-delete">Delete</button>
@@ -59,7 +65,7 @@ var Rabta = {
 
 			if (window.getComputedStyle(document.body).backgroundBlendMode) {
 				var post_image = Rabta.things[popup.getAttribute('data-popup-id') + '-popup'].post_image;
-				Rabta.editBox.style.backgroundImage = `url('${post_image}')`;
+				Rabta.editBox.style.backgroundImage = `url('${Rabta.getResizedUrl(post_image, 300, 300)}')`;
 				Rabta.editBox.style.backgroundSize = 'cover';
 				Rabta.editBox.style.backgroundBlendMode = 'color-dodge';
 			}
@@ -162,6 +168,7 @@ var Rabta = {
 		.on('old markers', function(markers) {
 			markers.forEach(function(marker) {
 				Rabta.createMarker(marker.lat, marker.lng, marker.id);
+				Rabta.socket.emit('old popups', {id:marker.id});
 				// console.log('[on(old markers)]', marker);
 			});
 		})
