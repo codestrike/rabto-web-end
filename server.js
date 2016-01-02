@@ -1,10 +1,11 @@
 var express = require('express');
 var app = express();
+var cloudy = require('cloudinary');
+var fs = require('fs');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var pg = require('pg');
-var fs = require('fs');
-var cloudy = require('cloudinary');
+var session = require('express-session');
 
 // Try for dev (local) else try for prod (heroku)
 var credentials = null;
@@ -32,12 +33,66 @@ try {
 // Set port number from config
 app.set('port', (process.env.PORT || 5000));
 
+// session middleware
+app.use(session({
+  secret: 'pommingbooff',
+  resave: true,
+  saveUninitialized: false,
+  cookie: { secure: false, maxAge: 360000 }
+}));
+
 // ./public contains static files
 app.use(express.static('public'));
 
 app.get('/', function(req, res) {
-	res.sendFile(__dirname + '/public/index.html');
+	var sess = req.session;
+	console.log('apt.get /', sess.username);
+	if (sess.username) {
+		res.sendFile(__dirname + '/index.admin.html');
+	} else {
+		res.sendFile(__dirname + '/index.html');
+	}
 });
+
+app.get('/login', function(req, res) {
+	if (req.query['un']) {
+		var sess = req.session;
+		console.log('[New Login]', req.query['un']);
+		sess.username = req.query['un'];
+		sess.save();
+	} else {
+		console.log('[Invalid Login Attempt]');
+	}
+	res.redirect('/?un=pikachu');
+});
+
+// Test functions for session starts
+app.get('/i', function(req, res) {
+	console.log('[app.get() /i]', req.query['u']);
+	if(req.query['u'] && req.query['u'] == req.query['p']) {
+		var sess = req.session;
+		sess.i = 'qBx3r843fjW' + req.query['u'];
+		sess.basewa = 12;
+		sess.save();
+		console.log('in session', sess.i);
+	}
+	res.redirect('/');
+});
+
+app.get('/o', function(req, res) {
+	req.session.destroy(function(err){
+		if(err) console.log(err);
+		res.redirect('/');
+	});
+});
+
+app.get('/echo', function(req, res) {
+	var sess = req.session;
+	sess.basewa = sess.basewa + 1;
+	console.log('Echoing sess', sess);
+	res.end(req.sessionID + " AND " + sess.basewa);
+});
+// Test function for session ends
 
 var query = function(sql, param, callback) {
 	pg.connect(
