@@ -25,6 +25,12 @@ var Rabta = {
 		// console.log('[getAllMarkersInTheView()]');
 	},
 
+	// Image resizing function
+       getResizedUrl: function(url, height, width) {
+               return url.replace(/upload\/\w+/i,`upload/w_${width},h_${height},c_fill`);
+       },
+
+
 	// Popup
 	getPopupFor: function(popup) {
 		return (new DOMParser)
@@ -33,7 +39,7 @@ var Rabta = {
 						<!-- strong class="author">Dummy Bell</strong -->
 						<p class="text">${popup.post_text}</p>
 					</section>
-					<div style="background-image:url('${popup.post_image}')" class="hero"></div>
+					<div style="background-image:url('${Rabta.getResizedUrl(popup.post_image, 300, 300)}')" class="hero"></div>
 					<!-- div class="foot">
 						<button class="btn btn-edit">Edit</button>
 						<button class="btn btn-delete">Delete</button>
