@@ -1,16 +1,8 @@
  // Globals and init setup
 var Rabta = {
 	map: L.map('map').setView([19, 72.8], 13),
-	// editBox: document.getElementsByClassName('edit-box')[0],
 	socket: io(),
 	things: {},
-
-	getUniqueID: function() {
-		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		    var r = crypto.getRandomValues(new Uint8Array(1))[0]%16|0, v = c == 'x' ? r : (r&0x3|0x8);
-		    return v.toString(16);
-		});
-	},
 
 	// Marker
 	createMarker: function(lat, lng, id) {
@@ -49,29 +41,6 @@ var Rabta = {
 				</div>`, 'text/html')
 			.lastChild.innerHTML;
 	},
-
-	// Edit Box
-	// showEditBox: function(lat, lng) {
-	// 	try {
-	// 		var popup = document.getElementsByClassName('popup-card')[0];
-	// 		Rabta.editBox.getElementsByClassName('edit-box-text')[0].value = popup.getElementsByClassName('text')[0].innerHTML;
-	// 		Rabta.editBox.getElementsByClassName('image')[0].setAttribute('hidden', true);
-
-	// 		if (window.getComputedStyle(document.body).backgroundBlendMode) {
-	// 			var post_image = Rabta.things[popup.getAttribute('data-popup-id') + '-popup'].post_image;
-	// 			Rabta.editBox.style.backgroundImage = `url('${post_image}')`;
-	// 			Rabta.editBox.style.backgroundSize = 'cover';
-	// 			Rabta.editBox.style.backgroundBlendMode = 'color-dodge';
-	// 		}
-	// 	} catch (e) {
-	// 		// There is no .popup-card => this is new card
-	// 		// console.log('[Will create a new card on .btn-done]');
-	// 		Rabta.editBox.setAttribute('data-lat', lat);
-	// 		Rabta.editBox.setAttribute('data-lng', lng);
-	// 		Rabta.editBox.getElementsByClassName('image')[0].removeAttribute('hidden');
-	// 	}
-	// 	Rabta.editBox.classList.add('overlay');
-	// },
 	
 	// Map
 	makeMap: function() {
@@ -80,78 +49,7 @@ var Rabta = {
 		
 		// Get exising markers
 		Rabta.getAllMarkersInTheView();
-
-		// Set event listeners 
-		// Rabta.map
-		// .on('contextmenu', function(e) {
-		// 	Rabta.showEditBox(e.latlng.lat, e.latlng.lng);
-		// 	// Rabta.socket.emit('new marker', {lat:e.latlng.lat, lng:e.latlng.lng});
-		// })
-		// .on('popupopen', function(e) {
-		// 	var p = document.getElementsByClassName('btn-edit')[0];
-		// 	p.addEventListener('click', function(e) {
-		// 		Rabta.showEditBox(p, e);
-		// 	});
-
-		// 	var deleteBtn = document.getElementsByClassName("btn-delete")[0];
-		// 	deleteBtn.addEventListener('click', function(e) {
-		// 		if (confirm('Are you determined enough to delete this ?')) {
-		// 			var popupId = document.getElementsByClassName('popup-card')[0].getAttribute('data-popup-id');
-		// 			var popup = Rabta.things[popupId + '-popup'];
-		// 			Rabta.socket.emit('delete marker', popup.marker);
-		// 			console.log('[makeMap.on popupopen confirm]', popup.marker);
-		// 		}
-		// 		console.log('[makeMap.on popupopen]', deleteBtn);
-		// 	});
-		// });
 	},
-
-	// initEditBox: function() {
-	// 	var d = Rabta.editBox.getElementsByClassName('btn-edit-done')[0];
-	// 	var c = Rabta.editBox.getElementsByClassName('btn-edit-cancel')[0];
-	// 	var img = Rabta.editBox.getElementsByClassName("image")[0];
-	// 	var post_image = '';
-
-	// 	//convert image into base64
-	// 	img.addEventListener('change',function(e){
-	// 		var fileReader = new FileReader();
-	// 		if(img.files[0].name.length>0){
-	// 			fileReader.readAsDataURL(img.files[0]);
-	// 			fileReader.onload = function(fileLoadEvent){
-	// 				 post_image = fileLoadEvent.target.result;
-	// 				console.log("[Client msg ]	" ,post_image);
-	// 		}
-	// 		}
-	// 	});
-
-	// 	d.addEventListener('click', function(e) {
-	// 		var post_text = Rabta.editBox.getElementsByClassName('edit-box-text')[0].value;
-	// 		try {
-	// 			var popup = document.getElementsByClassName('popup-card')[0];
-	// 			popup.getElementsByClassName('text')[0].innerHTML = post_text;
-
-	// 			Rabta.socket.emit('modified popup', {
-	// 				id: popup.getAttribute('data-popup-id'),
-	// 				post_text: post_text
-	// 			});
-	// 			// console.log('[.btn-done click]', popup);
-	// 		} catch (e) {
-	// 			// This is new card, so emit the event
-	// 			Rabta.socket.emit('new marker', {
-	// 				lat: Rabta.editBox.getAttribute('data-lat'),
-	// 				lng: Rabta.editBox.getAttribute('data-lng'),
-	// 				post_text: post_text,
-	// 				post_image: post_image
-	// 			});
-	// 			// console.log('[.btn-done catch]', Rabta.editBox.getAttribute('data-lat'), Rabta.editBox.getAttribute('data-lng'));
-	// 		}
-	// 		Rabta.editBox.classList.remove('overlay');
-	// 	});
-
-	// 	c.addEventListener('click', function(e) {
-	// 		Rabta.editBox.classList.remove('overlay');
-	// 	});
-	// },
 
 	initSocketIo: function() {
 		Rabta.socket
@@ -191,19 +89,3 @@ var Rabta = {
 
 Rabta.makeMap()
 Rabta.initSocketIo()
-// Rabta.initEditBox()
-
-// test codes
-Rabta.test = function() {
-	try {
-		// check that map exists
-		if(!Rabta.map) console.error('[Rabta.map]', Rabta.map);
-
-		// Check getUniqueID is returning a string 
-		if(Rabta.getUniqueID().length != 36) console.error('[Rabta.getUniqueID()]')
-	} catch (e) {
-		console.error('[Some tests failed to execute]', e);
-	}
-};
-
-Rabta.test();
